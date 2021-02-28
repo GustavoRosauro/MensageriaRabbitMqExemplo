@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Newtonsoft.Json;
+using RabbitMQ.Client;
 using System;
 using System.Text;
 
@@ -13,19 +14,28 @@ namespace RabbitMQExample
             {
                 using (var chanel = connection.CreateModel())
                 {
-                    chanel.QueueDeclare(queue: "Mensagem",
-                                        durable: false,
-                                        exclusive: false,
-                                        autoDelete: false,
-                                        arguments: null);
-                    string mensagem = "Mensagem foi enviada para o Rabbit";
-                    var body = Encoding.UTF8.GetBytes(mensagem);
-                    chanel.BasicPublish(exchange: "",
-                                        routingKey:"Mensagem",
-                                        basicProperties: null,
-                                        body: body);
+                    string[] nomes =new string[10] { "GUSTAVO", "FABIO", "AMANDA", "CECILIA", "JENIFER", "MARIA", "PEDRO", "MOISES","AUGUSTO","JOSE" };
+                    for (int i = 0; i < 10; i++)
+                    { 
+                        chanel.QueueDeclare(queue: i.ToString(),
+                                            durable: false,
+                                            exclusive: false,
+                                            autoDelete: false,
+                                            arguments: null);
+                        var pessoa = new
+                        {
+                            Nome = nomes[0],
+                            Idade = 10 + i
+                        };
+                        var json = JsonConvert.SerializeObject(pessoa);                        
+                        var body = Encoding.UTF8.GetBytes(json);
+                        chanel.BasicPublish(exchange: "",
+                                            routingKey:i.ToString(),
+                                            basicProperties: null,
+                                            body: body);
 
-                    Console.WriteLine(" [x] Enviado {0}", mensagem);
+                        Console.WriteLine(" [x] Enviado {0}", json);
+                    }
                     Console.WriteLine(" [x] Aperte enter para sair ");
                     Console.ReadLine();
                 }
