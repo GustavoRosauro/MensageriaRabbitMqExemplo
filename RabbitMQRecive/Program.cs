@@ -14,10 +14,8 @@ namespace RabbitMQRecive
             using (var connection = factory.CreateConnection())
             {
                 using (var chanel = connection.CreateModel())
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        chanel.QueueDeclare(queue: i.ToString(),
+                {                    
+                        chanel.QueueDeclare(queue: "Lista",
                                             durable: false,
                                             exclusive: false,
                                             autoDelete: false,
@@ -27,13 +25,13 @@ namespace RabbitMQRecive
                         {
                             var body = ea.Body.ToArray();
                             string json = Encoding.UTF8.GetString(body);
-                            dynamic obj = JsonConvert.DeserializeObject<dynamic>(json);
-                            Console.WriteLine(" [x] Recebeu  Nome: {0} Idade: {1}", obj["Nome"],obj["Idade"]);
+                            string[] nomes = JsonConvert.DeserializeObject<string[]>(json);
+                            foreach(var nome in nomes)
+                                Console.WriteLine(" [x] Recebeu  Nome: {0} ", nome);
                         };
-                        chanel.BasicConsume(queue: i.ToString(),
+                        chanel.BasicConsume(queue: "Lista",
                                             autoAck: true,
                                             consumer: consumer);
-                    }
                     Console.WriteLine(" Aperte [enter] para sair ");
                     Console.ReadLine();
                 }
